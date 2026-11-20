@@ -33,12 +33,14 @@ flowchart LR
 
 ## 2. Cấu trúc đầy đủ của repository
 
-Cây dưới đây mô tả repository khi đồ án hoàn thành. Hợp đồng Solidity nằm tại `contracts/Election.sol`. Ba thư mục `contracts/`, `backend/` và `frontend/` cùng nằm ở gốc dự án. Hiện các tệp đã có nằm trong `docs/`.
+Cây dưới đây mô tả repository khi đồ án hoàn thành. Hợp đồng Solidity, test và script triển khai đã có trong repository. Xem [bàn giao hợp đồng](thiet-ke-hop-dong.md) để lấy thông tin bản deploy thử. Cấu trúc frontend và backend được mô tả để Thành viên 2 triển khai.
 
 ```text
 Blockchain_project/
 ├── contracts/
-│   └── Election.sol              # hợp đồng Solidity mở trong Remix IDE
+│   ├── Election.sol              # hợp đồng Solidity mở trong Remix IDE
+│   └── benchmarks/
+│       └── ElectionTwoMappings.sol  # bản đối chứng dùng khi đo gas
 ├── test/
 │   └── Election.ts               # kiểm thử hợp đồng bằng Hardhat
 ├── scripts/
@@ -64,6 +66,7 @@ Blockchain_project/
 │   ├── trien-khai.md
 │   ├── trien-khai-fe-be.md
 │   ├── phan-cong-cong-viec.md     # đầu việc, người phụ trách và mốc bàn giao
+│   ├── thiet-ke-hop-dong.md        # giao diện Solidity, bảo mật và bản deploy
 │   ├── ket-qua-kiem-thu.md       # kết quả Hardhat và kiểm tra tích hợp
 │   ├── ket-qua-do-gas.md         # số liệu Ganache và so sánh tối ưu
 │   ├── bao-cao.pdf               # báo cáo nộp 4–6 trang
@@ -145,37 +148,11 @@ Kết quả `0x539` trong RPC tương ứng với Chain ID `1337`. Giá trị `5
 3. Để thử trên **Ganache Desktop**, mở **Deploy & Run Transactions**. Trong **Environment**, chọn **External HTTP Provider** và nhập RPC của workspace. Nếu Remix web không kết nối trực tiếp được với RPC, dùng **Browser Extension**, chọn MetaMask đã kết nối đúng mạng Ganache theo mục 4.5. Chọn hợp đồng `Election`, chọn tài khoản test admin và bấm **Deploy**. Dùng **Deployed Contracts** để thử đăng ký cử tri, thêm ứng viên và gọi `owner()` hoặc `getCandidate(id)`. [Deploy & Run trong Remix](https://remix-ide.readthedocs.io/en/latest/run.html)
 4. Ghi địa chỉ hoặc mã giao dịch nếu cần đối chiếu bản thử trong Ganache. Sau khi deploy bằng Hardhat ở mục 4.4, Flask đọc địa chỉ và ABI do script Hardhat xuất rồi cung cấp cho trang web qua API. Mỗi lần deploy tạo một cuộc bầu cử riêng với địa chỉ riêng.
 
-### 4.3 Khởi tạo Hardhat cho bản nộp
+### 4.3 Cài Hardhat cho bản nộp
 
-Chạy `npx.cmd hardhat@3 --init` từ thư mục gốc và chọn mẫu TypeScript dùng Mocha và ethers.js. Thêm Vite vào dự án bằng `npm.cmd install --save-dev vite` và thêm ethers.js 6 làm phụ thuộc trực tiếp bằng `npm.cmd install ethers@6`. Người nhận repository đã có lockfile dùng `npm.cmd ci`. Sau khi thay mã ví dụ bằng mã đồ án, dùng cấu hình sau cho `hardhat.config.ts`.
+Chạy `npm.cmd ci` từ thư mục gốc để dùng các phiên bản trong lockfile. [Cấu hình Hardhat của dự án](../hardhat.config.ts) dùng compiler `solc/soljson.js` từ npm đã ghim `0.8.24`, EVM `paris` và optimizer `200` runs. TypeScript dùng cho cấu hình, kiểm thử và các script. Frontend dùng JavaScript thuần.
 
-TypeScript dùng cho cấu hình Hardhat, kiểm thử và các script triển khai hoặc đo gas. Mã nguồn frontend nằm trong `frontend/` và dùng JavaScript thuần.
-
-```ts
-import { defineConfig } from "hardhat/config";
-import hardhatToolboxMochaEthers from "@nomicfoundation/hardhat-toolbox-mocha-ethers";
-
-export default defineConfig({
-  plugins: [hardhatToolboxMochaEthers],
-  solidity: {
-    version: "0.8.24",
-    settings: {
-      evmVersion: "paris",
-      optimizer: { enabled: true, runs: 200 },
-    },
-  },
-  networks: {
-    ganache: {
-      type: "http",
-      url: "http://127.0.0.1:7545",
-      chainId: 1337,
-      accounts: "remote",
-    },
-  },
-});
-```
-
-`accounts: "remote"` cho phép script dùng tài khoản test Ganache đã mở khóa. RPC nên chỉ lắng nghe trên `127.0.0.1`. Dùng thiết lập `paris` để giới hạn bytecode ở tập lệnh tương thích với Ganache Desktop 2.7.1. [Cấu hình mạng Hardhat](https://hardhat.org/docs/reference/configuration) · [Cấu hình EVM của Solidity](https://docs.soliditylang.org/en/v0.8.24/using-the-compiler.html#setting-the-evm-version-to-target)
+Mạng `ganache` mặc định là `http://127.0.0.1:7545`, Chain ID `1337`. Nếu workspace dùng giá trị khác, đặt `GANACHE_RPC_URL` và `GANACHE_CHAIN_ID` trong terminal. `accounts: "remote"` cho phép script dùng tài khoản test Ganache đã mở khóa. RPC nên chỉ lắng nghe trên `127.0.0.1`. [Cấu hình mạng Hardhat](https://hardhat.org/docs/reference/configuration) · [Cấu hình EVM của Solidity](https://docs.soliditylang.org/en/v0.8.24/using-the-compiler.html#setting-the-evm-version-to-target)
 
 ### 4.4 Kiểm thử, deploy và mở web
 
@@ -222,7 +199,7 @@ Với repository đã có `origin`, dùng remote và nhánh hiện có. Sau khi 
 
 Chạy `npx.cmd hardhat run scripts/measure-gas.ts --network ganache` sau khi triển khai script đo. Mỗi lượt đo dùng hợp đồng mới để không thay đổi cuộc bầu cử demo. Lấy `gasUsed` từ biên nhận thành công và ghi kèm tên hàm, cấu hình biên dịch, phiên bản Ganache và giao dịch. Đo theo thứ tự deploy, đăng ký cử tri, thêm ứng viên, mở, phiếu đầu cho một ứng viên, phiếu tiếp theo cho cùng ứng viên và đóng. Khi so sánh chi phí thêm ứng viên, dùng tên có cùng độ dài. Các lời gọi đọc qua `eth_call` không phát sinh phí giao dịch cho người xem.
 
-**Tối ưu dự kiến.** Dùng một `mapping(address => VoterStatus)` để tra trạng thái trực tiếp và tái sử dụng ô lưu trữ của địa chỉ đã đăng ký khi bỏ phiếu. Để định lượng, so với bản đối chứng dùng hai mapping riêng cho `eligible` và `hasVoted`, dưới cùng compiler, optimizer, sự kiện, dữ liệu đầu vào và trạng thái ban đầu. Báo cáo số gas đo được và chênh lệch của `registerVoter` và `vote`. Chưa có số liệu khi chưa chạy script trên Ganache.
+**Tối ưu đã đo.** `Election` dùng một `mapping(address => VoterStatus)` để tái sử dụng ô lưu trữ của địa chỉ đã đăng ký khi bỏ phiếu. [Bảng gas thực tế](ket-qua-do-gas.md) ghi mức tiết kiệm so với bản dùng hai mapping trên cùng Ganache, cùng compiler, optimizer, sự kiện và dữ liệu đầu vào.
 
 | Thời lượng demo | Thao tác |
 | --- | --- |

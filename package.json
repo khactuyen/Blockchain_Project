@@ -1,0 +1,26 @@
+{
+  "name": "class-election",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "build": "hardhat build",
+    "test": "hardhat test",
+    "deploy:ganache": "hardhat run scripts/deploy.ts --network ganache",
+    "gas:ganache": "hardhat run scripts/measure-gas.ts --network ganache"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox-mocha-ethers": "4.0.0",
+    "@types/chai": "5.2.3",
+    "@types/mocha": "10.0.10",
+    "@types/node": "22.7.5",
+    "chai": "6.3.0",
+    "ethers": "6.17.0",
+    "hardhat": "3.22.0",
+    "solc": "0.8.24",
+    "typescript": "7.0.2"
+  }
+}

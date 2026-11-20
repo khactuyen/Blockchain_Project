@@ -1,0 +1,14 @@
+node_modules/
+artifacts/
+cache/
+types/
+coverage/
+deployments/local.json
+deployments/.local-*.json
+.env
+.env.*
+!.env.example
+.venv/
+__pycache__/
+dist/
+

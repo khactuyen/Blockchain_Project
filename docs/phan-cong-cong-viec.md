@@ -11,6 +11,8 @@
 
 Thành viên 1 phụ trách hợp đồng, công cụ triển khai và kiểm thử trên blockchain. Thành viên 2 phụ trách ứng dụng web và kiểm thử tích hợp. Mỗi người bàn giao mã nguồn, hướng dẫn chạy phần mình và bằng chứng nghiệm thu. Hai thành viên cùng chốt giao diện hợp đồng và chạy thử bản nộp.
 
+Theo dõi trạng thái thực tế theo mã đầu việc trong [file tiến độ](tiendo.md).
+
 ## 1. Thành viên 1 — Hợp đồng, kiểm thử và đo gas
 
 | Mã | Công việc | Đầu ra và tiêu chí hoàn thành |
